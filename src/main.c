@@ -100,7 +100,7 @@ void venderProduto(char M[][LENGTH], int Q[], float P[], int total) {
         }
     }
 
-    if (!encontrado) {
+    if (encontrado == 0) {
         printf("Produto nao encontrado!\n");
     }
     clearInputBuffer();
@@ -114,9 +114,7 @@ int main(){
     int indiceP = 0;
     char produto[MAX_PRODUTO][LENGTH];
     int Q[10];
-    float P[10];
-
-    int totalProdutos = 0; 
+    float P[10]; 
     int escolha;
     
     do{
@@ -129,6 +127,7 @@ int main(){
     printf("ESCOLHA UMA OPÇÃO:\n");
     scanf("%d", &escolha);
     
+    system("cls");
     switch (escolha){
         case 1:
         clearInputBuffer();
@@ -136,15 +135,15 @@ int main(){
         break;
     case 2:
         clearInputBuffer();
-        venderProduto(produto, Q, P, totalProdutos);
+        venderProduto(produto, Q, P, indiceP);
         break;
     case 3: 
         clearInputBuffer();
-        printf("OPÇÃO DE PESQUISA ESCOLHIDA\n");
+        printf("OPCAO DE PESQUISA ESCOLHIDA\n");
         break;
     case 4: 
         clearInputBuffer();
-        printf("OPÇÃO DE IMPRIMIR ESCOLHIDA\n");
+        printf("OPCAO DE IMPRIMIR ESCOLHIDA\n");
         break;
     case 5:
         clearInputBuffer();
