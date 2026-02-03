@@ -60,17 +60,22 @@ void cadastrarProduto(char produto[][LENGTH], float preco[], int* contaP, int qu
     printf("Produto cadastrado com sucesso.\n");
 }
 
-void venderProduto(char M[][20], int Q[], float P[], int total) {
+void venderProduto(char M[][LENGTH], int Q[], float P[], int total) {
 
-    char nome[20];              
+    char nome[LENGTH];              
     int quantia, encontrado= 0;
     int i;
 
     printf("Nome do produto: ");
-    scanf("%s", nome);
+    fgets(nome, LENGTH, stdin);
+    nome[strcspn(nome, "\n")] = 0;
 
     printf("Quantidade desejada: ");
-    scanf("%d", &quantia);
+    if(scanf("%d", &quantia) != 1 || quantia <= 0){
+        printf(" Quantidade inválida.\n");
+        clearInputBuffer();
+        return;
+    }
 
     for (i = 0; i<total; i++) {
 
@@ -86,16 +91,19 @@ void venderProduto(char M[][20], int Q[], float P[], int total) {
 
                 printf("Produto: %s\n", M[i]);
                 printf("Total a pagar: R$ %.2f\n", totalPagar);
+                printf("Estoque restante: %d\n", Q[i]);
 
             } else {
                 printf("Estoque insuficiente!\n");
             }
+            break;
         }
     }
 
     if (!encontrado) {
         printf("Produto nao encontrado!\n");
     }
+    clearInputBuffer();
 }
 
 void pesquisarProduto();
