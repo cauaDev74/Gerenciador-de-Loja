@@ -106,9 +106,46 @@ void venderProduto(char M[][LENGTH], int Q[], float P[], int total) {
     clearInputBuffer();
 }
 
-void pesquisarProduto();
+void imprimirEstoque(char produto[][LENGTH], float P[], int Q[], int contaP){
+    if (contaP > 0){
+        for (int i = 0; i < contaP; i++){
+            printf("Produto %d:\n", i + 1);
+            printf("%s\n", produto[i]);
+            printf("Preco: R$%.2f\n", P[i]);
+            printf("Quantidade em estoque: %d\n\n", Q[i]);
+        }
+    }else{
+        printf("Nao ha produtos no estoque. \n");
+    }
+}
 
-void imprimirEstoque();
+void pesquisarProduto(char produto[][LENGTH], float preco[], int qE[], int contaP){
+
+    char nome[LENGTH];
+    int encontrado= 0;
+    int i;
+
+    printf("Nome do produto: ");
+     fgets (nome, LENGTH, stdin);
+
+    for (i = 0; i<contaP; i++) {
+
+        if (strcmp(produto[i], nome) == 0) { 
+
+            encontrado = 1;
+
+            printf("produto: %s\n", produto[i]);
+            printf("Preco: %f\n", preco[i]);
+            printf("Quantidade: %d\n", qE[i]);
+
+            break;
+    }
+
+    if(!encontrado){
+        printf("Produto não encontrado!\n");
+    }
+}
+}
 
 int main(){
     int indiceP = 0;
@@ -139,11 +176,11 @@ int main(){
         break;
     case 3: 
         clearInputBuffer();
-        printf("OPCAO DE PESQUISA ESCOLHIDA\n");
+        pesquisarProduto(produto, P, Q, indiceP);
         break;
     case 4: 
         clearInputBuffer();
-        printf("OPCAO DE IMPRIMIR ESCOLHIDA\n");
+        imprimirEstoque(produto, P, Q, indiceP);
         break;
     case 5:
         clearInputBuffer();
