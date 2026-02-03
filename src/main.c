@@ -126,25 +126,26 @@ void pesquisarProduto(char produto[][LENGTH], float preco[], int qE[], int conta
     int i;
 
     printf("Nome do produto: ");
-     fgets (nome, LENGTH, stdin);
+     fgets(nome, LENGTH, stdin);
+    nome[strcspn(nome, "\n")] = 0;
 
-    for (i = 0; i<contaP; i++) {
+    for (i = 0; i < contaP; i++) {
 
         if (strcmp(produto[i], nome) == 0) { 
 
             encontrado = 1;
 
             printf("produto: %s\n", produto[i]);
-            printf("Preco: %f\n", preco[i]);
+            printf("Preco: %.2f\n", preco[i]);
             printf("Quantidade: %d\n", qE[i]);
 
             break;
-    }
+        }
 
-    if(!encontrado){
+    }
+    if(encontrado == 0){
         printf("Produto não encontrado!\n");
     }
-}
 }
 
 int main(){
