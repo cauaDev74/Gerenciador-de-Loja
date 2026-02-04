@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <ctype.h>
 
 #define MAX_PRODUTO 10
 #define LENGTH 20
@@ -10,14 +11,40 @@ void clearInputBuffer() {
     int c;
     while ((c = getchar()) != '\n' && c != EOF);
 }
+void paraMinusculo(char name[]){
+    for(int i; name[i] != '\0'; i++){
+        name[i] = tolower(name[i]);
+    }
+}
 
-void cadastrarProduto(char produto[][LENGTH], float preco[], int* contaP, int quantidadeNoEstoque[]){
+void trim(char str[]){
+    int inicio = 0;
+    int fim = strlen(str) - 1;
+
+    while(isspace(str[inicio])){
+        inicio++;
+    }
+
+    while(fim >= inicio && isspace(str[fim])){
+        fim--;
+    }
+
+    int i, j = 0;
+
+    for(i = inicio; i <= fim; i++){
+        str[j++] = str[i];
+    }
+
+    str[j] = '\0';
+}
+
+void cadastrarProduto(char produto[][LENGTH], float P[], int* indiceP, int Q[]){
     /*  ¬» Essa função tem como objetivo cadastrar o produto recebendo: nome, preço e quantidade.
             Utilizei uma matriz 10x20 para registrar os nomes dos produtos, essa função vai receber
             apenas o nome do produto que está sendo registrado no momento e isso serve para os outros parâmetros.
         ¬» Sugestão de melhora seria utilizar structs para que apenas uma variável receba todos os parâmetros.
     */
-    if(*contaP >= MAX_PRODUTO){
+    if(*indiceP >= MAX_PRODUTO){
         //Verifica se já atingiu o limite de produtos
         printf("Limite de produtos registrados atingido.\n");
         return;
@@ -26,14 +53,42 @@ void cadastrarProduto(char produto[][LENGTH], float preco[], int* contaP, int qu
     char nomeDoProduto[LENGTH];
     float precoUnitario;
     int quantidade;
+    int encontrado = 0;
 
     printf("Informe o nome do produto: ");
     if(fgets(nomeDoProduto, LENGTH, stdin) == NULL){
         printf("Erro ao ler o nome.\n");
         return;
+    } 
+    if(strchr(nomeDoProduto, '\n') == NULL){
+        printf("Nome muito grande.\n");
+        return;
     }
     nomeDoProduto[strcspn(nomeDoProduto, "\n")] = 0;
-    strcpy(produto[*contaP], nomeDoProduto);
+    trim(nomeDoProduto);
+    if(strlen(nomeDoProduto) == 0){
+        printf("Nome invalido. Nao pode ser vazio.\n");
+        return;
+    }
+    
+
+    paraMinusculo(nomeDoProduto);
+
+    for (int i = 0; i < *indiceP; i++) {
+
+        if (strcmp(produto[i], nomeDoProduto) == 0) { 
+
+            encontrado = 1;
+
+            printf("Esse produto ja foi cadastrado.\n");
+
+            return;
+        }
+
+    }
+    
+    
+    strcpy(produto[*indiceP], nomeDoProduto);
     
     printf("Insira o valor: R$");
     if(scanf("%f", &precoUnitario) != 1){
@@ -42,7 +97,7 @@ void cadastrarProduto(char produto[][LENGTH], float preco[], int* contaP, int qu
         return;
     }
     
-    preco[*contaP] = precoUnitario;
+    P[*indiceP] = precoUnitario;
     
     printf("Insira a quantidade no estoque: ");
     if(scanf("%d", &quantidade) != 1){
@@ -51,16 +106,16 @@ void cadastrarProduto(char produto[][LENGTH], float preco[], int* contaP, int qu
         return;
     }
     
-    quantidadeNoEstoque[*contaP] = quantidade;
+    Q[*indiceP] = quantidade;
 
     clearInputBuffer();
 
-    (*contaP)++;
+    (*indiceP)++;
 
     printf("Produto cadastrado com sucesso.\n");
 }
 
-void venderProduto(char M[][LENGTH], int Q[], float P[], int total) {
+void venderProduto(char produto[][LENGTH], int Q[], float P[], int indiceP) {
 
     char nome[LENGTH];              
     int quantia, encontrado= 0;
@@ -70,6 +125,14 @@ void venderProduto(char M[][LENGTH], int Q[], float P[], int total) {
     fgets(nome, LENGTH, stdin);
     nome[strcspn(nome, "\n")] = 0;
 
+    trim(nome);
+    if(strlen(nome) == 0){
+        printf("Nome invalido. Nao pode ser vazio.\n");
+        return;
+    }
+
+    paraMinusculo(nome);
+
     printf("Quantidade desejada: ");
     if(scanf("%d", &quantia) != 1 || quantia <= 0){
         printf(" Quantidade inválida.\n");
@@ -77,9 +140,9 @@ void venderProduto(char M[][LENGTH], int Q[], float P[], int total) {
         return;
     }
 
-    for (i = 0; i<total; i++) {
+    for (i = 0; i<indiceP; i++) {
 
-        if (strcmp(M[i], nome) == 0) { 
+        if (strcmp(produto[i], nome) == 0) { 
 
             encontrado = 1;
 
@@ -89,12 +152,12 @@ void venderProduto(char M[][LENGTH], int Q[], float P[], int total) {
 
                 Q[i] -= quantia; // att estoque se 
 
-                printf("Produto: %s\n", M[i]);
+                printf("Produto: %s\n", produto[i]);
                 printf("Total a pagar: R$ %.2f\n", totalPagar);
-                printf("Estoque restante: %d\n", Q[i]);
+                printf("Estoque restante: %d\n\n", Q[i]);
 
             } else {
-                printf("Estoque insuficiente!\n");
+                printf("Estoque insuficiente!\n\n");
             }
             break;
         }
@@ -106,9 +169,9 @@ void venderProduto(char M[][LENGTH], int Q[], float P[], int total) {
     clearInputBuffer();
 }
 
-void imprimirEstoque(char produto[][LENGTH], float P[], int Q[], int contaP){
-    if (contaP > 0){
-        for (int i = 0; i < contaP; i++){
+void imprimirEstoque(char produto[][LENGTH], float P[], int Q[], int indiceP){
+    if (indiceP > 0){
+        for (int i = 0; i < indiceP; i++){
             printf("Produto %d:\n", i + 1);
             printf("%s\n", produto[i]);
             printf("Preco: R$%.2f\n", P[i]);
@@ -119,7 +182,7 @@ void imprimirEstoque(char produto[][LENGTH], float P[], int Q[], int contaP){
     }
 }
 
-void pesquisarProduto(char produto[][LENGTH], float preco[], int qE[], int contaP){
+void pesquisarProduto(char produto[][LENGTH], float P[], int Q[], int indiceP){
 
     char nome[LENGTH];
     int encontrado= 0;
@@ -129,22 +192,30 @@ void pesquisarProduto(char produto[][LENGTH], float preco[], int qE[], int conta
      fgets(nome, LENGTH, stdin);
     nome[strcspn(nome, "\n")] = 0;
 
-    for (i = 0; i < contaP; i++) {
+    trim(nome);
+    if(strlen(nome) == 0){
+        printf("Nome invalido. Nao pode ser vazio.\n");
+        return;
+    }
+
+    paraMinusculo(nome);
+
+    for (i = 0; i < indiceP; i++) {
 
         if (strcmp(produto[i], nome) == 0) { 
 
             encontrado = 1;
 
             printf("produto: %s\n", produto[i]);
-            printf("Preco: %.2f\n", preco[i]);
-            printf("Quantidade: %d\n", qE[i]);
+            printf("Preco: R$%.2f\n", P[i]);
+            printf("Quantidade: %d\n\n", Q[i]);
 
             break;
         }
 
     }
     if(encontrado == 0){
-        printf("Produto não encontrado!\n");
+        printf("Produto não encontrado!\n\n");
     }
 }
 
@@ -156,13 +227,19 @@ int main(){
     int escolha;
     
     do{
-    printf("\tSISTEMA ABERTO!\t\n\n");   
-    printf(" 1 - CADASTRAR PRODUTO\n");
-    printf(" 2 - VENDER\n");
-    printf(" 3 - PESQUISAR PRODUTO\n");
-    printf(" 4 - IMPRIMIR ESTOQUE\n");
-    printf(" 5 - SAIR\n");
-    printf("ESCOLHA UMA OPÇÃO:\n");
+    printf("//=====================================\\\\\n");
+printf("||                                       ||\n");
+printf("||           GERENCIADOR DE LOJA         ||\n");
+printf("||                                       ||\n");
+printf("\\\\=====================================//\n");
+printf("  ||                                 ||\n");
+printf("  ||   (1) ... Cadastrar produto     ||\n");
+printf("  ||   (2) ... Vender                ||\n");
+printf("  ||   (3) ... Pesquisar Produto     ||\n");
+printf("  ||   (4) ... Imprimir estoque      ||\n");
+printf("  ||   (5) ... Sair                  ||\n");
+printf("  ||                                 ||\n");
+printf("  ||=================================||\n");
     scanf("%d", &escolha);
     
     system("cls");
