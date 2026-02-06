@@ -13,7 +13,7 @@ void clearInputBuffer() {
 }
 void paraMinusculo(char name[]){
     for(int i; name[i] != '\0'; i++){
-        name[i] = tolower(name[i]);
+        name[i] = tolower((unsigned char)name[i]);
     }
 }
 
@@ -60,9 +60,11 @@ void cadastrarProduto(char produto[][LENGTH], float P[], int* indiceP, int Q[]){
         printf("Erro ao ler o nome.\n");
         return;
     } 
+    
     if(strchr(nomeDoProduto, '\n') == NULL){
-        printf("Nome muito grande.\n");
-        return;
+    printf("Nome muito grande.\n");
+    clearInputBuffer();
+    return;
     }
     nomeDoProduto[strcspn(nomeDoProduto, "\n")] = 0;
     trim(nomeDoProduto);
@@ -91,20 +93,24 @@ void cadastrarProduto(char produto[][LENGTH], float P[], int* indiceP, int Q[]){
     strcpy(produto[*indiceP], nomeDoProduto);
     
     printf("Insira o valor: R$");
-    if(scanf("%f", &precoUnitario) != 1){
-        printf("Valores inválidos.\n");
-        clearInputBuffer();
-        return;
+    
+    if(scanf("%f", &precoUnitario) != 1 || precoUnitario <= 0){
+    printf("Preco invalido.\n");
+    clearInputBuffer();
+    return;
     }
+
     
     P[*indiceP] = precoUnitario;
     
     printf("Insira a quantidade no estoque: ");
-    if(scanf("%d", &quantidade) != 1){
-        printf("Quantidade inválida.\n");
-        clearInputBuffer();
-        return;
-    }
+    
+    if(scanf("%d", &quantidade) != 1 || quantidade < 0){
+    printf("Quantidade invalida.\n");
+    clearInputBuffer();
+    return;
+}
+
     
     Q[*indiceP] = quantidade;
 
@@ -117,11 +123,17 @@ void cadastrarProduto(char produto[][LENGTH], float P[], int* indiceP, int Q[]){
 
 void venderProduto(char produto[][LENGTH], int Q[], float P[], int indiceP) {
 
+    if(indiceP == 0){
+    printf("Nao ha produtos cadastrados.\n");
+    return;
+}    
+    
     char nome[LENGTH];              
     int quantia, encontrado= 0;
     int i;
 
     printf("Nome do produto: ");
+    clearInputBuffer();
     fgets(nome, LENGTH, stdin);
     nome[strcspn(nome, "\n")] = 0;
 
@@ -189,7 +201,8 @@ void pesquisarProduto(char produto[][LENGTH], float P[], int Q[], int indiceP){
     int i;
 
     printf("Nome do produto: ");
-     fgets(nome, LENGTH, stdin);
+    clearInputBuffer();
+    fgets(nome, LENGTH, stdin);
     nome[strcspn(nome, "\n")] = 0;
 
     trim(nome);
@@ -222,8 +235,8 @@ void pesquisarProduto(char produto[][LENGTH], float P[], int Q[], int indiceP){
 int main(){
     int indiceP = 0;
     char produto[MAX_PRODUTO][LENGTH];
-    int Q[10];
-    float P[10]; 
+    int Q[MAX_PRODUTO];
+    float P[MAX_PRODUTO];
     int escolha;
     
     do{
@@ -249,11 +262,11 @@ printf("  ||=================================||\n");
         cadastrarProduto(produto, P, &indiceP, Q);
         break;
     case 2:
-        clearInputBuffer();
+       
         venderProduto(produto, Q, P, indiceP);
         break;
-    case 3: 
-        clearInputBuffer();
+    case 3:
+        
         pesquisarProduto(produto, P, Q, indiceP);
         break;
     case 4: 
